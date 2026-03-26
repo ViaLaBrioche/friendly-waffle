@@ -1,3 +1,4 @@
+faker
 selenium==4.41.0
 pytest==9.0.2
-ruff
+ruff==0.15.6

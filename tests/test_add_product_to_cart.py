@@ -1,65 +1,18 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
-import random
+from page_objects.cart_page import CartPage
+from page_objects.elements.modal_product import ModalCard
+from page_objects.main_page import MainPage
 
 
 def test_elements_is_visible_on_admin_login_page(driver, prestashop_base_url):
-    driver.get(prestashop_base_url)
-    wait = WebDriverWait(driver, 10)
-
-    wait.until(
-        method=EC.visibility_of_element_located(
-            (By.XPATH, '//div[@class="products row"]')
-        ),
-        message="Не появился класс с контентом (.products row)",
-    )
-    wait.until(
-        method=EC.visibility_of_element_located(
-            (By.XPATH, '//h2[normalize-space()="Sample 1"]')
-        ),
-        message="Не появился элемент с контентом (Sample 1)",
-    )
-
-    random_product_id = random.randint(1, 8)
-
-    product = driver.find_element(
-        By.XPATH, f'//article[@data-id-product="{random_product_id}"]'
-    )
-
-    product_name = product.find_element(
-        By.XPATH, './/h3[@class="h3 product-title"]/a'
-    ).text
-
-    product.click()
-
-    wait.until(
-        method=EC.visibility_of_element_located(
-            (By.XPATH, '//button[contains(., "Add to cart")]')
-        ),
-        message="Не появилась кнопка с контентом (Add to cart)",
-    )
-
-    driver.find_element(By.XPATH, '//button[contains(., "Add to cart")]').click()
-
-    wait.until(
-        method=EC.visibility_of_element_located(
-            (By.XPATH, '//a[contains(., "Proceed to checkout")]')
-        ),
-        message="Не появилась кнопка с контентом (Proceed to checkout)",
-    )
-
-    driver.find_element(By.XPATH, '//a[contains(., "Proceed to checkout")]').click()
-
-    wait.until(
-        method=EC.visibility_of_element_located(
-            (By.XPATH, '//h1[normalize-space()="Shopping Cart"]')
-        ),
-        message="Не появилась кнопка с контентом (Add to cart)",
-    )
-
-    product_name_cart = driver.find_element(
-        By.XPATH, './/div[@class="product-line-info"]/a'
-    ).text
-
+    main = MainPage(driver)
+    cart = CartPage(driver)
+    modal = ModalCard(driver)
+    main.open(prestashop_base_url)
+    main.wait_until_loaded()
+    product_name = cart.get_product_name()
+    cart.choose_product()
+    modal.add_to_cart()
+    modal.go_to_cart()
+    cart.wait_until_loaded()
+    product_name_cart = cart.get_product_name_in_cart()
     assert product_name.lower().replace("...", "") in product_name_cart.lower()

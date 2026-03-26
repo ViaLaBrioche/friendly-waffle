@@ -2,6 +2,7 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from faker import Faker
 
 
 def pytest_addoption(parser):
@@ -50,3 +51,28 @@ def driver(request):
     yield browser
 
     browser.quit()
+
+
+@pytest.fixture
+def registration_user_data():
+    fake = Faker()
+
+    return {
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "email": fake.email(),
+        "password": fake.password(length=12),
+        "birth_date": "01/01/2000",
+    }
+
+
+@pytest.fixture
+def admin_user():
+    return {"email": "admin@example.com", "password": "Admin123!"}
+
+
+@pytest.fixture
+def product_data():
+    fake = Faker()
+
+    return {"name": fake.word(), "description": fake.text(max_nb_chars=50)}
