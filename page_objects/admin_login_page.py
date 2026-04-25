@@ -35,6 +35,7 @@ class AdminLoginPage(BasePage):
         self.click(self.BTN_SUBMIT)
 
     def login(self, email, password):
+        self.driver.logger.info("Login as admin user")
         self.enter_email(email)
         self.enter_password(password)
         self.click_log_in()
@@ -43,7 +44,9 @@ class AdminLoginPage(BasePage):
         return self.wait_visible(self.BTN_PROFILE)
 
     def open_profile(self):
+        self.driver.logger.info("Open admin profile menu")
         self.click(self.BTN_PROFILE)
 
     def sign_out(self):
+        self.driver.logger.info("Sign out from admin account")
         self.click(self.BTN_SIGN_OUT)

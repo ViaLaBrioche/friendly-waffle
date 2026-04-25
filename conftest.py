@@ -1,8 +1,12 @@
 import pytest
+import datetime
+import allure
+import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from faker import Faker
+
 
 
 def pytest_addoption(parser):
@@ -20,6 +24,8 @@ def pytest_addoption(parser):
         default="http://localhost:8081/administration",
     )
 
+    parser.addoption("--log_level", action="store", default="INFO")
+
 
 @pytest.fixture
 def prestashop_base_url(request):
@@ -35,6 +41,15 @@ def prestashop_admin_url(request):
 def driver(request):
     browser_name = request.config.getoption("--browser")
 
+    log_level = request.config.getoption("--log_level")
+    logger = logging.getLogger(request.node.name)
+    file_handler = logging.FileHandler(f"logs/{request.node.name}.log", mode="w")
+    file_handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+    logger.addHandler(file_handler)
+    logger.setLevel(level=log_level)
+
+    logger.info("===> Test started at %s" % datetime.datetime.now())
+
     if browser_name == "firefox":
         browser = webdriver.Firefox()
     elif browser_name == "chrome":
@@ -48,9 +63,18 @@ def driver(request):
         options.binary_location = "/Applications/Yandex.app/Contents/MacOS/Yandex"
         browser = webdriver.Chrome(service=service, options=options)
 
+    browser.log_level = log_level
+    browser.logger = logger
+    browser.test_name = request.node.name
+    logger.info("Browser %s started" % browser_name)
+
     yield browser
 
     browser.quit()
+    logger.info("===> Test finished at %s" % datetime.datetime.now())
+    file_handler.close()
+
+    logger.removeHandler(file_handler)
 
 
 @pytest.fixture
@@ -76,3 +100,18 @@ def product_data():
     fake = Faker()
 
     return {"name": fake.word(), "description": fake.text(max_nb_chars=50)}
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item):
+    outcome = yield
+    rep = outcome.get_result()
+
+    if rep.when == "call" and rep.failed:
+        driver = item.funcargs.get("driver")
+        if driver:
+            allure.attach(
+                driver.get_screenshot_as_png(),
+                name="screenshot on failure",
+                attachment_type=allure.attachment_type.PNG,
+            )

@@ -11,6 +11,7 @@ class ProductCardPage(BasePage):
     TAB_CONTENT = (By.XPATH, '//div[@id="tab-content"]')
 
     def check_required_elements_visible(self):
+        self.driver.logger.info("Check product card required elements visible")
         self.wait_visible(self.PICTURE)
         self.wait_visible(self.CONTENT)
         self.wait_visible(self.BUTTON_ADD_TO_CART)
