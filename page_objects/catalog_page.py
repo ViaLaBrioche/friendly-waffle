@@ -15,20 +15,23 @@ class CatalogPage(BasePage):
     SEARCH_FILTERS = (By.XPATH, '//div[@id="search_filters"]')
 
     def check_currency_symbol(self):
+        self.driver.logger.info("Check currency symbol")
         currency_set = self.get_text(self.CURRENCY_SET)
         currency_product = self.get_text(self.CURRENCY_PRODUCT)
-        assert currency_product.strip()[0] == currency_set.split()[-1]
+        return currency_product.strip()[0] == currency_set.split()[-1]
 
     def wait_until_loaded(self):
         self.wait_visible(self.CATEGORIES)
 
     def wait_until_currency_changed_to_usd(self, timeout=10):
+        self.driver.logger.info("Wait until currency changed to USD")
         WebDriverWait(self.driver, timeout).until(
             EC.text_to_be_present_in_element(self.CURRENCY_PRODUCT, "$"),
             message="Цена не обновилась на USD",
         )
 
     def check_required_elements_visible(self):
+        self.driver.logger.info("Check required elements visible")
         self.wait_visible(self.CATEGORIES)
         self.wait_visible(self.FILTERS_BRANDS)
         self.wait_visible(self.SUBCATEGORIES)

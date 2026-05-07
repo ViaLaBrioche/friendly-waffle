@@ -29,6 +29,7 @@ class AdminProductsPage(BasePage):
         self.wait_visible(self.LINK_ADD_NEW_PRODUCT)
 
     def add_new_product_main_page(self):
+        self.driver.logger.info("Open add new product page")
         self.click(self.LINK_ADD_NEW_PRODUCT)
 
     def select_standard_product(self):
@@ -42,12 +43,14 @@ class AdminProductsPage(BasePage):
         self.send_keys(self.PRODUCT_NAME, product_name)
 
     def enter_product_description(self, description):
+        self.driver.logger.info("Select standard product type")
         iframe = self.wait_visible(self.DESCRIPTION_IFRAME)
         self.driver.switch_to.frame(iframe)
         self.send_keys(self.DESCRIPTION_BODY, description)
         self.driver.switch_to.default_content()
 
     def save_product(self):
+        self.driver.logger.info("Save product")
         self.click(self.BTN_SAVE)
 
     def choose_product(self):
@@ -57,9 +60,11 @@ class AdminProductsPage(BasePage):
         self.click(self.BTN_BULK_ACTIONS)
 
     def delete_product(self):
+        self.driver.logger.info("Delete product")
         self.click(self.BTN_DELETE_SELECTION)
 
     def confirm_delete_product(self):
+        self.driver.logger.info("Confirm delete product")
         self.click(self.BTN_DELETE_SELECTION_CONFIRM)
 
     def wait_deleted_successful(self):
