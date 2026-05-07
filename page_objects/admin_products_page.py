@@ -32,12 +32,18 @@ class AdminProductsPage(BasePage):
         self.driver.logger.info("Open add new product page")
         self.click(self.LINK_ADD_NEW_PRODUCT)
 
+    def wait_until_product_creation_page_loaded(self):
+        self.wait_visible(self.PRODUCT_NAME, timeout=30)
+
     def select_standard_product(self):
-        iframe = self.wait_visible(self.MODAL_SELECT_PRODUCT_IFRAME)
+        iframe = self.wait_visible(self.MODAL_SELECT_PRODUCT_IFRAME, timeout=20)
         self.driver.switch_to.frame(iframe)
-        self.click(self.STANDARD_PRODUCT)
-        self.click(self.BTN_ADD_NEW_PRODUCT)
+        standard_product = self.wait_clickable(self.STANDARD_PRODUCT, timeout=20)
+        self.driver.execute_script("arguments[0].click();", standard_product)
+        add_button = self.wait_clickable(self.BTN_ADD_NEW_PRODUCT, timeout=20)
+        self.driver.execute_script("arguments[0].click();", add_button)
         self.driver.switch_to.default_content()
+        self.wait_until_product_creation_page_loaded()
 
     def enter_product_name(self, product_name):
         self.send_keys(self.PRODUCT_NAME, product_name)
