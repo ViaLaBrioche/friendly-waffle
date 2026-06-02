@@ -1,5 +1,4 @@
 import os
-import shutil
 import pytest
 import datetime
 import allure
@@ -14,8 +13,11 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
 def pytest_addoption(parser):
+
     parser.addoption("--browser", action="store", default="chrome")
     parser.addoption("--headless", action="store_true")
+    parser.addoption("--browser_version", action="store", default="120.0")
+    parser.addoption("--executor", action="store", default="local")
 
     parser.addoption(
         "--prestashop",
@@ -47,6 +49,8 @@ def driver(request):
     browser_name = request.config.getoption("--browser")
     headless = request.config.getoption("--headless")
     log_level = request.config.getoption("--log_level")
+    browser_version = request.config.getoption("--browser_version")
+    executor = request.config.getoption("--executor")
 
     os.makedirs("logs", exist_ok=True)
 
@@ -62,7 +66,32 @@ def driver(request):
 
     browser = None
 
-    if browser_name == "firefox":
+    if executor == "selenoid":
+        if browser_name == "chrome":
+            options = ChromeOptions()
+
+        elif browser_name == "firefox":
+            options = FirefoxOptions()
+
+        else:
+            raise ValueError(f"Unsupported browser for selenoid: {browser_name}")
+
+        options.set_capability("browserVersion", browser_version)
+
+        options.set_capability(
+            "selenoid:options",
+            {
+                "enableVNC": True,
+                "enableVideo": False,
+            },
+        )
+
+        browser = webdriver.Remote(
+            command_executor="http://selenoid:4444/wd/hub",
+            options=options,
+        )
+
+    elif browser_name == "firefox":
         options = FirefoxOptions()
 
         if headless:
@@ -87,9 +116,7 @@ def driver(request):
         service = ChromeService(executable_path="/usr/bin/chromedriver")
         browser = webdriver.Chrome(service=service, options=options)
 
-
     elif browser_name == "yandex":
-
         service = ChromeService(
             executable_path="/Users/andreikapaev/Downloads/yandexdriver"
         )
@@ -97,6 +124,9 @@ def driver(request):
         options = ChromeOptions()
         options.binary_location = "/Applications/Yandex.app/Contents/MacOS/Yandex"
         browser = webdriver.Chrome(service=service, options=options)
+
+    else:
+        raise ValueError(f"Unsupported browser: {browser_name}")
 
     browser.log_level = log_level
     browser.logger = logger
