@@ -1,16 +1,21 @@
+import os
+import shutil
 import pytest
 import datetime
 import allure
 import logging
+
+from faker import Faker
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from faker import Faker
-
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
 def pytest_addoption(parser):
-    parser.addoption("--browser", default="chrome")
+    parser.addoption("--browser", action="store", default="chrome")
+    parser.addoption("--headless", action="store_true")
 
     parser.addoption(
         "--prestashop",
@@ -32,33 +37,63 @@ def prestashop_base_url(request):
     return request.config.getoption("--prestashop")
 
 
-@pytest.fixture()
+@pytest.fixture
 def prestashop_admin_url(request):
     return request.config.getoption("--prestashop_administration")
 
 
-@pytest.fixture()
+@pytest.fixture
 def driver(request):
     browser_name = request.config.getoption("--browser")
-
+    headless = request.config.getoption("--headless")
     log_level = request.config.getoption("--log_level")
+
+    os.makedirs("logs", exist_ok=True)
+
     logger = logging.getLogger(request.node.name)
+    logger.handlers.clear()
+    logger.setLevel(log_level)
+
     file_handler = logging.FileHandler(f"logs/{request.node.name}.log", mode="w")
     file_handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
     logger.addHandler(file_handler)
-    logger.setLevel(level=log_level)
 
-    logger.info("===> Test started at %s" % datetime.datetime.now())
+    logger.info("===> Test started at %s", datetime.datetime.now())
+
+    browser = None
 
     if browser_name == "firefox":
-        browser = webdriver.Firefox()
+        options = FirefoxOptions()
+
+        if headless:
+            options.add_argument("--headless")
+
+        browser = webdriver.Firefox(options=options)
+
     elif browser_name == "chrome":
         options = ChromeOptions()
-        browser = webdriver.Chrome(options=options)
+
+        options.binary_location = "/usr/bin/chromium"
+
+        if headless:
+            options.add_argument("--headless=new")
+
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--remote-debugging-port=9222")
+
+        service = ChromeService(executable_path="/usr/bin/chromedriver")
+        browser = webdriver.Chrome(service=service, options=options)
+
+
     elif browser_name == "yandex":
+
         service = ChromeService(
             executable_path="/Users/andreikapaev/Downloads/yandexdriver"
         )
+
         options = ChromeOptions()
         options.binary_location = "/Applications/Yandex.app/Contents/MacOS/Yandex"
         browser = webdriver.Chrome(service=service, options=options)
@@ -66,14 +101,16 @@ def driver(request):
     browser.log_level = log_level
     browser.logger = logger
     browser.test_name = request.node.name
-    logger.info("Browser %s started" % browser_name)
+
+    logger.info("Browser %s started", browser_name)
 
     yield browser
 
     browser.quit()
-    logger.info("===> Test finished at %s" % datetime.datetime.now())
-    file_handler.close()
 
+    logger.info("===> Test finished at %s", datetime.datetime.now())
+
+    file_handler.close()
     logger.removeHandler(file_handler)
 
 
@@ -92,14 +129,20 @@ def registration_user_data():
 
 @pytest.fixture
 def admin_user():
-    return {"email": "admin@example.com", "password": "Admin123!"}
+    return {
+        "email": "admin@example.com",
+        "password": "Admin123!",
+    }
 
 
 @pytest.fixture
 def product_data():
     fake = Faker()
 
-    return {"name": fake.word(), "description": fake.text(max_nb_chars=50)}
+    return {
+        "name": fake.word(),
+        "description": fake.text(max_nb_chars=50),
+    }
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -109,6 +152,7 @@ def pytest_runtest_makereport(item):
 
     if rep.when == "call" and rep.failed:
         driver = item.funcargs.get("driver")
+
         if driver:
             allure.attach(
                 driver.get_screenshot_as_png(),
