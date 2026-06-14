@@ -1,5 +1,6 @@
 faker==40.11.1
 selenium==4.41.0
 pytest==9.0.2
+pytest-xdist
 ruff==0.15.6
 allure-pytest==2.15.3
