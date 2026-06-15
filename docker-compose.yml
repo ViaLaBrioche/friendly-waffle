@@ -107,10 +107,26 @@ services:
         "--prestashop_administration", "http://prestashop/administration"
       ]
 
+  jenkins:
+    build:
+      context: ./jenkins
+    image: prestashop-jenkins:latest
+    container_name: jenkins
+    user: root
+    ports:
+      - "8082:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
 volumes:
   db_data:
     driver: local
   ps_data:
+    driver: local
+  jenkins_home:
     driver: local
 
 networks:
