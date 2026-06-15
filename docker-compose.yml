@@ -53,7 +53,7 @@ services:
       ADMIN_PASSWD: Admin123!
       PS_FOLDER_ADMIN: administration
       PS_FOLDER_INSTALL: install
-      PS_DOMAIN: localhost:8081
+      PS_DOMAIN: prestashop
     volumes:
       - ps_data:/var/www/html
     depends_on:
