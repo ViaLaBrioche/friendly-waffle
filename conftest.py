@@ -66,7 +66,7 @@ def driver(request):
 
     browser = None
 
-    if executor == "selenoid":
+    if executor != "local":
         if browser_name == "chrome":
             options = ChromeOptions()
 
@@ -87,7 +87,7 @@ def driver(request):
         )
 
         browser = webdriver.Remote(
-            command_executor="http://selenoid:4444/wd/hub",
+            command_executor=executor,
             options=options,
         )
 
