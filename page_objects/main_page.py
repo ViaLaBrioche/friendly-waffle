@@ -11,8 +11,8 @@ class MainPage(BasePage):
     CURRENCY_SET = (By.XPATH, '//span[@class="expand-more _gray-darker"]')
     CURRENCY_PRODUCT = (By.XPATH, '//span[@class="price"]')
     HEADER = (By.XPATH, '//*[@id="header"]')
-    BANNER = (By.XPATH, '//*[@id="content"]/a[@class="banner"]')
-    FOOTER_CONTAINER = (By.XPATH, '//div[@class="footer-container"]')
+    BANNER = (By.XPATH, '//div[@class="carousel-item active"]')
+    FOOTER_CONTAINER = (By.XPATH, '//footer[@id="footer"]')
 
     def wait_until_loaded(self):
         self.wait_visible(self.LOGO)

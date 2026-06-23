@@ -210,3 +210,7 @@ __marimo__/
 .DS_Store
 
 allure-results/
+allure-results-local/
+allure-results/
+logs/
+

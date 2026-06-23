@@ -5,14 +5,14 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class CatalogPage(BasePage):
-    CURRENCY_PRODUCT = (By.XPATH, '//span[@class="price"]')
+    CURRENCY_PRODUCT = (By.XPATH, '//button[@class="price"]')
     CURRENCY_SET = (By.XPATH, '//span[@class="expand-more _gray-darker"]')
     PAGE_URL = "/3-clothes"
-    CATEGORIES = (By.XPATH, '//div[@class="block-categories"]')
-    FILTERS_BRANDS = (By.CSS_SELECTOR, "#search_filters_brands")
-    SUBCATEGORIES = (By.CSS_SELECTOR, "#subcategories")
-    CARD_BLOCK = (By.XPATH, '//div[@class="block-category card card-block"]')
-    SEARCH_FILTERS = (By.XPATH, '//div[@id="search_filters"]')
+    CATEGORIES = (By.XPATH, '//button[contains(., "Categories")]')
+    FILTERS_SEARCH = (By.CSS_SELECTOR, "#search-filters")
+    SUBCATEGORY = (By.XPATH, '//div[@class="subcategory"]')
+    CARD_BLOCK = (By.XPATH, '//section[@id="products"]')
+    SEARCH_FILTERS = (By.XPATH, '//div[@id="search-filters"]')
 
     def check_currency_symbol(self):
         self.driver.logger.info("Check currency symbol")
@@ -33,7 +33,7 @@ class CatalogPage(BasePage):
     def check_required_elements_visible(self):
         self.driver.logger.info("Check required elements visible")
         self.wait_visible(self.CATEGORIES)
-        self.wait_visible(self.FILTERS_BRANDS)
-        self.wait_visible(self.SUBCATEGORIES)
+        self.wait_visible(self.FILTERS_SEARCH)
+        self.wait_visible(self.SUBCATEGORY)
         self.wait_visible(self.CARD_BLOCK)
         self.wait_visible(self.SEARCH_FILTERS)
