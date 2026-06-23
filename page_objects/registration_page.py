@@ -7,22 +7,22 @@ from page_objects.base_page import BasePage
 
 class Registration(BasePage):
     PAGE_URL = "/registration"
-    PAGE_CONTENT = (By.XPATH, '//div[@class="page-content card card-block"]')
-    BTN_SAVE = (By.XPATH, '//button[contains(., "Save")]')
+    PAGE_CONTENT = (By.XPATH, '//div[@id="center-column"]')
+    BTN_SAVE = (By.XPATH, '//button[contains(., "Create account")]')
     WRAPPER = (By.CSS_SELECTOR, "#wrapper")
     FIRST_NAME = (By.XPATH, '//input[@id="field-firstname"]')
     LAST_NAME = (By.CSS_SELECTOR, "#field-lastname")
     PASSWORD = (By.XPATH, '//input[@id="field-password"]')
     EMAIL = (By.CSS_SELECTOR, "#field-email")
     BIRTH_DATE = (By.CSS_SELECTOR, "#field-birthday")
-    GENDER_MR = (By.CSS_SELECTOR, "label[for='field-id_gender-1']")
-    GENDER_MRS = (By.CSS_SELECTOR, "label[for='field-id_gender-2']")
+    GENDER_MR = (By.CSS_SELECTOR, "label[for='field-id_gender_1']")
+    GENDER_MRS = (By.CSS_SELECTOR, "label[for='field-id_gender_2']")
 
-    I_AGREE_CHECKBOX = (By.XPATH, '//input[@name="psgdpr"]/parent::label')
-    NEWSLETTER_CHECKBOX = (By.XPATH, '//input[@name="newsletter"]/parent::label')
+    I_AGREE_CHECKBOX = (By.XPATH, '//input[@id="field-psgdpr"]')
+    NEWSLETTER_CHECKBOX = (By.XPATH, '//input[@id="field-newsletter"]')
     CUSTOMER_PRIVACY_CHECKBOX = (
         By.XPATH,
-        '//input[@name="customer_privacy"]/parent::label',
+        '//input[@id="field-customer_privacy"]',
     )
 
     def check_required_elements_visible(self):
